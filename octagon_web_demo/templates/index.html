@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upload CSV — Octagon Research</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --primary: #007aff;
+      --uploaded: #28a745;
+      --uploaded-hover: #218838;
+      --background: #f9f9f9;
+      --card-bg: #fff;
+      --border-color: #ccc;
+      --text-color: #333;
+      --disabled: #929292;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--background);
+      color: var(--text-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      padding: 20px;
+    }
+
+    .upload-container {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 48px 40px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
+      text-align: center;
+    }
+
+    .logo {
+      height: 36px;
+      margin-bottom: 32px;
+    }
+
+    h2 {
+      font-size: 1.6rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+      color: #111;
+    }
+
+    .file-upload {
+      position: relative;
+      margin: 24px 0;
+      width: 100%;
+    }
+
+    .file-upload-label {
+      display: block;
+      width: 100%;
+      background: #f4f4f4;
+      border: 2px dashed var(--border-color);
+      border-radius: 12px;
+      padding: 28px 20px;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .file-upload.dragover .file-upload-label {
+      border-color: var(--primary);
+      background-color: #f0f8ff;
+      box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+    }
+
+    .file-upload.uploaded .file-upload-label {
+      border-color: var(--uploaded);
+      background-color: #f6fdf7;
+      box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.1);
+      color: var(--uploaded);
+    }
+
+    .upload-instruction {
+      line-height: 1.6;
+    }
+
+    .upload-instruction span {
+      font-weight: 600;
+      font-size: 1rem;
+      color: #333;
+    }
+
+    .upload-instruction small {
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    .file-upload input[type="file"] {
+      opacity: 0;
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    .file-status {
+      margin-top: 12px;
+      font-size: 0.92rem;
+      font-weight: 500;
+      color: var(--text-color);
+    }
+
+    .file-status.uploaded {
+      color: var(--uploaded);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .file-status.uploaded::before {
+      content: "✅";
+      font-size: 1rem;
+    }
+
+    .next-button {
+      background: var(--disabled);
+      color: white;
+      padding: 14px 24px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: not-allowed;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+      margin-top: 24px;
+    }
+
+    .next-button.active {
+      background: var(--uploaded);
+      cursor: pointer;
+    }
+
+    .next-button.active:hover {
+      background: var(--uploaded-hover);
+      transform: scale(1.02);
+    }
+
+    .subtext {
+      font-size: 0.85rem;
+      color: #777;
+      margin-top: 20px;
+    }
+
+    code {
+      background: #eee;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="upload-container">
+    <img src="https://cdn.prod.website-files.com/67e20964923f8dc825a5dbd0/67e20964923f8dc825a5dc24_header-logo.svg" alt="Octagon Logo" class="logo" />
+    <h2>Upload Company CSV</h2>
+
+    <form action="/upload" method="post" enctype="multipart/form-data">
+      <div class="file-upload" id="fileUpload">
+        <label class="file-upload-label" for="fileInput">
+          <div class="upload-instruction">
+            <span>Click to upload</span><br />
+            <small>or drag & drop your CSV here</small>
+          </div>
+        </label>
+        <input type="file" name="file" id="fileInput" accept=".csv" required />
+      </div>
+
+      <div class="file-status" id="fileStatus">No file selected</div>
+
+      <input type="submit" value="Next →" class="next-button" />
+    </form>
+
+    <p class="subtext">CSV should include at least a <code>name</code> column.</p>
+  </div>
+
+  <script>
+    const fileUpload = document.getElementById("fileUpload");
+    const fileInput = document.getElementById("fileInput");
+    const fileStatus = document.getElementById("fileStatus");
+
+    fileUpload.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      fileUpload.classList.add("dragover");
+    });
+
+    fileUpload.addEventListener("dragleave", () => {
+      fileUpload.classList.remove("dragover");
+    });
+
+    fileUpload.addEventListener("drop", (e) => {
+      e.preventDefault();
+      fileUpload.classList.remove("dragover");
+      const file = e.dataTransfer.files[0];
+      if (file && file.name.endsWith(".csv")) {
+        fileInput.files = e.dataTransfer.files;
+        showUploadedState(file.name);
+      }
+    });
+
+    fileInput.addEventListener("change", () => {
+      const file = fileInput.files[0];
+      if (file && file.name.endsWith(".csv")) {
+        showUploadedState(file.name);
+      } else {
+        resetFileState();
+      }
+    });
+
+    function showUploadedState(filename) {
+      fileUpload.classList.add("uploaded");
+      fileStatus.textContent = filename;
+      fileStatus.classList.add("uploaded");
+      document.querySelector('.next-button').classList.add('active');
+    }
+
+    function resetFileState() {
+      fileUpload.classList.remove("uploaded");
+      fileStatus.textContent = "No file selected";
+      fileStatus.classList.remove("uploaded");
+      document.querySelector('.next-button').classList.remove('active');
+    }
+  </script>
+</body>
+</html>

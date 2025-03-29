@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Research Stream — Octagon</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --primary: #111;
+      --primary-hover: #000;
+      --success: #28a745;
+      --background: #f9f9f9;
+      --text: #222;
+      --border: #e0e0e0;
+      --stripe: #f5f5f5;
+      --accent: #007aff;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background-color: var(--background);
+      color: var(--text);
+      margin: 0;
+      padding: 40px 16px;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .logo {
+      height: 36px;
+      margin-bottom: 40px;
+    }
+
+    .back-button-wrapper {
+      margin-bottom: 1rem;
+    }
+
+    .back-button {
+      display: inline-block;
+      color: #423e5e;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.9rem;
+      padding: 0.4rem 0.8rem;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .back-button:hover {
+      background-color: #f2f2f2;
+      border-color: #ccc;
+    }
+
+    h1, h2 {
+      color: #423e5e;
+      font-weight: 600;
+      margin-bottom: 1.2rem;
+    }
+
+    .header-row {
+      color: #423e5e;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.2rem;
+    }
+
+    .view-toggle {
+      background: none;
+      border: none;
+      color: var(--primary);
+      font-weight: 500;
+      margin-left: 0.5rem;
+      cursor: pointer;
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      transition: background 0.2s ease;
+    }
+
+    .view-toggle:hover {
+      background: #eee;
+    }
+
+    #tableWrapper {
+      width: 100%;
+      overflow: hidden;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    table {
+      width: 100%;
+      min-width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      display: block;
+    }
+
+    thead, tbody {
+      display: block;
+    }
+
+    thead th, tbody td {
+      box-sizing: border-box;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      background: #f0f0f0;
+      z-index: 10;
+      text-align: left;
+    }
+
+    thead th:first-child {
+      border-top-left-radius: 12px;
+    }
+
+    thead th:last-child {
+      border-top-right-radius: 12px;
+    }
+
+    tbody tr:last-child td:first-child {
+      border-bottom-left-radius: 12px;
+    }
+
+    tbody tr:last-child td:last-child {
+      border-bottom-right-radius: 12px;
+    }
+
+    tbody {
+      max-height: 520px;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    tbody::-webkit-scrollbar {
+      width: 8px;
+      background: transparent;
+    }
+
+    tbody::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    tbody::-webkit-scrollbar-thumb {
+      background: rgba(81, 81, 81, 0.3);
+      border-radius: 4px;
+      visibility: hidden;
+      transition: visibility 0.8s ease;
+    }
+
+    tbody.active::-webkit-scrollbar-thumb {
+      visibility: visible;
+    }
+
+    th, td {
+      padding: 1rem 1.2rem;
+      font-size: 0.95rem;
+      border-bottom: 1px solid var(--border);
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
+    th:first-child, td:first-child {
+      width: 40px;
+      text-align: center;
+    }
+
+    th:nth-child(2), td:nth-child(2) { width: 32%; }
+    th:nth-child(3), td:nth-child(3) { width: 38%; }
+    th:nth-child(4), td:nth-child(4) { width: 30%; }
+
+    tr:nth-child(even) {
+      background: var(--stripe);
+    }
+
+    td a {
+      display: inline-block;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+    }
+
+    a {
+      color: #423e5e;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    a:hover {
+      color: #2e2b46;
+      text-decoration: underline;
+    }
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: var(--accent);
+    }
+
+    .run-button {
+      background: transparent;
+      color: var(--primary);
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+      border: 1px solid var(--primary);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .run-button:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .run-selected-button {
+      background: var(--primary);
+      color: white;
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .run-selected-button:hover {
+      background: var(--primary-hover);
+    }
+
+    .run-selected-wrapper {
+      height: 56px;
+      margin: 1.5rem 0 1rem;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .run-selected-wrapper.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .output-wrapper {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      right: 24px;
+      max-width: 920px;
+      margin: 0 auto;
+      z-index: 1000;
+    }
+
+    #tableWrapper {
+      width: 100%;
+      overflow: hidden;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.05); /* 👈 Add this line for a subtle thin border */
+    }
+
+    #tableWrapper:hover {
+      box-shadow: 0 0 12px rgba(0, 255, 136, 0.15);
+    }
+
+
+
+    #output {
+      background: rgba(30, 30, 47, 0.95);
+      color: #00ff88; /* ⚡️ retro-futuristic hacking green */
+      padding: 1.25rem 1.5rem;
+      border-radius: 30px;
+      min-height: 160px;
+      max-height: 300px;
+      overflow-y: auto;
+      font-family: 'JetBrains Mono', monospace;
+      white-space: pre-wrap;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      font-size: 0.9rem;
+      border: 1px solid rgba(0, 255, 136, 0.25); /* subtle glow border */
+      line-height: 1.5;
+    }
+
+
+    #output:hover {
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+    }
+
+    .disclaimer {
+      margin-top: 0.75rem;
+      font-size: 0.85rem;
+      color: #666;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    .footer-note {
+      display: block;
+      margin-top: 4px;
+      font-size: 0.8rem;
+      color: #999;
+    }
+
+
+    #downloadLink {
+      display: none;
+      margin-top: 0.75rem;
+      background: var(--success);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background 0.2s ease;
+      display: inline-block;
+    }
+
+    #downloadLink:hover {
+      background: #1e7e34;
+    }
+
+    @media (max-width: 600px) {
+      table, th, td {
+        font-size: 0.85rem;
+      }
+
+      .run-button {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.8rem;
+      }
+
+      .output-wrapper {
+        left: 12px;
+        right: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="https://cdn.prod.website-files.com/67e20964923f8dc825a5dbd0/67e20964923f8dc825a5dc24_header-logo.svg" alt="Octagon Logo" class="logo" />
+
+    <div class="back-button-wrapper">
+      <a href="/" class="back-button">⬅ Back</a>
+    </div>
+
+    <div class="header-row">
+      <h1>Research</h1>
+      <div style="font-size: 0.9rem;">
+        Show:
+        <button class="view-toggle" onclick="setScrollLimit(10)">10</button>
+        <button class="view-toggle" onclick="setScrollLimit(20)">20</button>
+        <button class="view-toggle" onclick="setScrollLimit('all')">All</button>
+      </div>
+    </div>
+
+    <div class="run-selected-wrapper" id="runSelectedWrapper">
+      <button class="run-selected-button" onclick="runSelected()">Run All Selected</button>
+    </div>
+
+    <div id="tableWrapper">
+      <table id="companyTable">
+        <thead>
+          <tr>
+            <th><input type="checkbox" onclick="toggleAll(this)" /></th>
+            <th>Company Name</th>
+            <th>Website</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="companyTableBody">
+          {% for company in companies %}
+            <tr>
+              <td><input type="checkbox" class="row-checkbox" data-name="{{ company.name }}" data-website="{{ company.website or '' }}" onchange="checkSelected()" /></td>
+              <td>{{ company.name }}</td>
+              <td>
+                {% if company.website %}
+                  <a href="{{ company.website }}" target="_blank">{{ company.website }}</a>
+                {% else %}
+                  <em>None</em>
+                {% endif %}
+              </td>
+              <td>
+                <button class="run-button" onclick="startStream('{{ company.name }}', '{{ company.website or '' }}')">
+                  Run
+                </button>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="output-wrapper">
+
+
+    <pre id="output">Click Run to begin streaming report generation...</pre>
+
+<div id="downloadWrapper" style="display: none; text-align: right; margin-top: 0.75rem;">
+  <a id="downloadLink" href="#" target="_blank">⬇️ Download Report</a>
+</div>
+
+    <div class="disclaimer">
+  <span class="footer-note">Investment Research Powered by Octagon</span>
+</div>
+  </div>
+
+  
+  <script>
+    const runSelectedWrapper = document.getElementById("runSelectedWrapper");
+
+    function setScrollLimit(limit) {
+      const tbody = document.querySelector("tbody");
+      tbody.style.maxHeight = limit === 'all' ? 'none' : limit * 52 + "px";
+    }
+
+
+    let processingInterval;
+
+    function startProcessingDots(baseText = "Running research") {
+      const output = document.getElementById("output");
+      let dotCount = 0;
+
+      processingInterval = setInterval(() => {
+        dotCount = (dotCount + 1) % 4;
+        const dots = ".".repeat(dotCount);
+        const currentText = output.innerText.split("\n\n")[0]; // keep top line
+        const newText = `${baseText}${dots}\n\n`;
+        output.innerText = newText;
+      }, 500);
+    }
+
+    function stopProcessingDots() {
+      clearInterval(processingInterval);
+    }
+
+
+    function startStream(name, website) {
+      const output = document.getElementById("output");
+      const downloadLink = document.getElementById("downloadLink");
+      const downloadWrapper = document.getElementById("downloadWrapper");
+
+      downloadWrapper.style.display = "none";
+      downloadLink.href = "#";
+
+      startProcessingDots(`Running research for: ${name}`); // start animation
+
+      const url = `/stream/${encodeURIComponent(name)}?website=${encodeURIComponent(website)}`;
+      const eventSource = new EventSource(url);
+
+      eventSource.onmessage = function(event) {
+        if (event.data === "[DONE]") {
+          stopProcessingDots(); // stop animation
+          output.innerText += "\n✅ Done!\n";
+          eventSource.close();
+        } else if (event.data.startsWith("[DOWNLOAD_LINK]:")) {
+          const path = event.data.replace("[DOWNLOAD_LINK]:", "").trim();
+          downloadLink.href = path;
+          downloadWrapper.style.display = "block";
+        } else {
+          stopProcessingDots(); // stop as soon as real data starts
+          output.innerText += event.data;
+          output.scrollTop = output.scrollHeight;
+        }
+      };
+
+      eventSource.onerror = function() {
+        stopProcessingDots(); // stop on error
+        output.innerText += "\n❌ Error occurred. Please try again.\n";
+        eventSource.close();
+      };
+    }
+
+
+    function toggleAll(master) {
+      const checkboxes = document.querySelectorAll(".row-checkbox");
+      checkboxes.forEach(cb => cb.checked = master.checked);
+      checkSelected();
+    }
+
+    function checkSelected() {
+      const selected = document.querySelectorAll(".row-checkbox:checked").length;
+      runSelectedWrapper.classList.toggle("active", selected > 0);
+    }
+
+    function runSelected() {
+      const selected = document.querySelectorAll(".row-checkbox:checked");
+      const queue = Array.from(selected).map(cb => ({
+        name: cb.dataset.name,
+        website: cb.dataset.website
+      }));
+
+      if (queue.length === 0) return;
+
+      const output = document.getElementById("output");
+      output.innerText = `🔁 Running batch research for ${queue.length} companies...\n\n`;
+
+      (async () => {
+        for (const company of queue) {
+          output.innerText += `➡️ ${company.name}\n`;
+          await new Promise(resolve => {
+            const url = `/stream/${encodeURIComponent(company.name)}?website=${encodeURIComponent(company.website)}`;
+            const eventSource = new EventSource(url);
+
+            eventSource.onmessage = function(event) {
+              if (event.data === "[DONE]") {
+                output.innerText += `✅ Finished ${company.name}\n\n`;
+                eventSource.close();
+                resolve();
+              } else {
+                output.innerText += event.data;
+                output.scrollTop = output.scrollHeight;
+              }
+            };
+
+            eventSource.onerror = function() {
+              output.innerText += `❌ Error with ${company.name}\n\n`;
+              eventSource.close();
+              resolve();
+            };
+          });
+        }
+
+        output.innerText += "🎉 All selected companies processed!";
+      })();
+    }
+
+    // Scrollbar fade logic
+    const tbody = document.querySelector('tbody');
+    let scrollTimeout;
+
+    function handleScrollActivity() {
+      clearTimeout(scrollTimeout);
+      tbody.classList.add('active');
+      scrollTimeout = setTimeout(() => {
+        tbody.classList.remove('active');
+      }, 1000);
+    }
+
+    tbody.addEventListener('scroll', handleScrollActivity);
+    tbody.addEventListener('mouseenter', handleScrollActivity);
+    tbody.addEventListener('mouseleave', () => {
+      clearTimeout(scrollTimeout);
+      tbody.classList.remove('active');
+    });
+  </script>
+</body>
+</html>

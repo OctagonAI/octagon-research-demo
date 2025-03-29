@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head><title>Report Results</title></head>
+<body>
+  <h2>📄 Reports Generated</h2>
+  <ul>
+    {% for name, path in reports %}
+      <li>{{ name }}: <a href="/download/{{ path }}">Download Report</a></li>
+    {% endfor %}
+  </ul>
+</body>
+</html>
