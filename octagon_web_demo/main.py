@@ -1,4 +1,6 @@
 import asyncio
+import argparse
+import os
 
 from octagon_web_demo.utils import load_template, read_companies_from_csv
 from octagon_web_demo.pipeline import ResearchPipeline
@@ -10,7 +12,7 @@ md_template = load_template(TEMPLATE_PATH)
 
 
 # === Entry Point ===
-async def async_main():
+async def async_main(csv_path=None):
     pipeline = ResearchPipeline(
         search_agent=search_agent,
         companies_agent=companies_agent,
@@ -20,7 +22,9 @@ async def async_main():
         judge_agent=judge_agent,
         template=md_template
     )
-    companies = read_companies_from_csv(CSV_PATH)
+    # Use provided csv_path or fall back to config CSV_PATH
+    path_to_use = csv_path or CSV_PATH
+    companies = read_companies_from_csv(path_to_use)
     
     for company in companies:
         try:
@@ -39,7 +43,13 @@ async def async_main():
 
 def cli():
     """Command line interface entry point"""
-    asyncio.run(async_main())
+    parser = argparse.ArgumentParser(description='Octagon Research Tool')
+    parser.add_argument('--csv', '-c', dest='csv_path', 
+                        help='Path to the input CSV file containing companies to research')
+    args = parser.parse_args()
+    
+    # Don't set environment variable, just pass the argument directly
+    asyncio.run(async_main(args.csv_path))
 
 if __name__ == "__main__":
     cli()

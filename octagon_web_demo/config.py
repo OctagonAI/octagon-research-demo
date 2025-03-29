@@ -15,7 +15,8 @@ BASE_DIR = pathlib.Path(__file__).resolve().parent
 BASE_DIR_CSV = os.path.dirname(os.path.abspath(__file__))
 
 TEMPLATE_PATH = BASE_DIR / "templates" / "template.md"
-CSV_PATH = os.path.join(BASE_DIR_CSV, "input", "test.csv")
+# Default CSV path - use CLI argument to override
+CSV_PATH = os.path.join(BASE_DIR_CSV, "input", "companies.csv")
 REPORTS_DIR = os.environ.get("REPORTS_DIR", str(BASE_DIR / "reports"))
 
 # === Clients ===

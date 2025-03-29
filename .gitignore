@@ -1,4 +1,4 @@
-reports/*
+*reports/*
 !reports/.gitkeep
 .env
 .DS_Store

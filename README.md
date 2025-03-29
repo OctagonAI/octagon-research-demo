@@ -1,6 +1,6 @@
 # 📊 Octagon Research Demo
 
-A tool to generate investor-ready research reports using the Octagon Agents API and OpenAI models. Available both as a CLI and a web-based application.
+A tool to generate investor-ready research reports using the Octagon Agents API and OpenAI models. This tool can be run either as a command-line interface (CLI) or as a web-based application.
 
 **This repository serves as a demonstration of how to use the [Octagon API](https://docs.octagonagents.com) for creating AI-powered research tools.**
 
@@ -8,8 +8,9 @@ It retrieves structured company and funding data, then synthesizes a professiona
 
 ---
 
-## 🚀 Quickstart
+## 🚀 Setup
 
+Follow these steps to set up the project:
 
 ### 1. Get an API Key
 
@@ -35,17 +36,34 @@ Then, edit the `.env` file to add your API keys:
 poetry install
 ```
 
-### 4. Run web based research
+---
+
+## 🌐 Web Application
+
+The web application provides a user interface to input company details (name or website) and generate research reports interactively.
+
+**Usage:**
 ```bash
 poetry run web
 ```
 
+Once started, navigate to `http://127.0.0.1:5000` (or the address provided in the terminal) in your web browser.
 
-### 5. Run CLI based research
+---
+
+## 💻 Command-Line Interface (CLI)
+
+The CLI allows you to generate research reports directly from your terminal by providing a CSV file with company names and optional websites.
+
+Your input CSV file must contain at least a `Name` column. A `Website` column is optional but recommended for better results. See [companies.csv](octagon_web_demo/input/companies.csv) for an example.
+
+**Usage:**
 ```bash
-poetry run research
+poetry run research --csv /path/to/your/companies.csv
 ```
+
+---
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the [MIT License](LICENSE)
