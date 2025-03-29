@@ -28,8 +28,8 @@ cp .env.example .env
 ```
 
 Then, edit the `.env` file to add your API keys:
-- `OPENAI_API_KEY`: Your OpenAI API key
 - `OCTAGON_API_KEY`: Your Octagon API key
+- `OPENAI_API_KEY`: Your OpenAI API key
 
 ### 3. Install dependencies
 ```bash
