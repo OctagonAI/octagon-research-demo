@@ -2,6 +2,8 @@
 
 A tool to generate investor-ready research reports using the Octagon Agents API and OpenAI models. Available both as a CLI and a web-based application.
 
+**This repository serves as a demonstration of how to use the [Octagon API](https://docs.octagonagents.com) for creating AI-powered research tools.**
+
 It retrieves structured company and funding data, then synthesizes a professional Markdown report using an LLM and a custom template.
 
 ---
