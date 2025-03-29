@@ -1,4 +1,4 @@
-*reports/*
+octagon_web_demo/reports/
 !reports/.gitkeep
 .env
 .DS_Store
