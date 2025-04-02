@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: octagon-research-demo
+    env: python
+    plan: free # Or your desired plan
+    buildCommand: "curl -sSL https://install.python-poetry.org | python3 - && ~/.local/bin/poetry install --no-dev"
+    startCommand: "~/.local/bin/poetry run web"
+    envVars:
+      - key: OCTAGON_API_KEY
+        value: xxx
+      - key: OPENAI_API_KEY
+        value: xxx
