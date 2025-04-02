@@ -7,7 +7,7 @@ from flask import Flask, request, render_template, redirect, url_for
 
 from octagon_web_demo.pipeline import ResearchPipeline
 from octagon_web_demo.utils import load_template, read_companies_from_csv
-from octagon_web_demo.agents import deep_research_agent, companies_agent, funding_agent, report_agent
+from octagon_web_demo.agents import search_agent, deep_research_agent, companies_agent, funding_agent, report_agent, judge_agent
 
 from octagon_web_demo.config import TEMPLATE_PATH, REPORTS_DIR
 
@@ -55,10 +55,12 @@ def run_pipeline():
 
     async def run_all():
         pipeline = ResearchPipeline(
+            search_agent=search_agent,
             deep_research_agent=deep_research_agent,
             companies_agent=companies_agent,
             funding_agent=funding_agent,
             report_agent=report_agent,
+            judge_agent=judge_agent,
             template=md_template
         )
         paths = []
@@ -66,7 +68,7 @@ def run_pipeline():
             name = company["name"]
             website = company.get("website")
             prompt = f"Get all available data for this company: {website or name}"
-            path = await pipeline.run(prompt)
+            path = await pipeline.run(prompt, name)
             paths.append((name, path))
         return paths
 
@@ -94,10 +96,12 @@ def stream(company_name):
 
         async def run_stream():
             pipeline = ResearchPipeline(
+                search_agent=search_agent,
                 deep_research_agent=deep_research_agent,
                 companies_agent=companies_agent,
                 funding_agent=funding_agent,
                 report_agent=report_agent,
+                judge_agent=judge_agent,
                 template=md_template
             )
             async for chunk in pipeline.run_streamed(prompt):
