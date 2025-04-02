@@ -121,7 +121,8 @@ async def _collect_streamed_output(async_gen):
 
 # === Run App ===
 def main():
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port, debug=False)
 
 if __name__ == "__main__":
     main()

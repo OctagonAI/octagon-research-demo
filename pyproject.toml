@@ -15,6 +15,7 @@ python-dotenv = "^1.0.0"
 flask = "^3.0.0"
 werkzeug = "^3.0.0"
 aiofiles = "^23.2.1"
+gunicorn = "^21.2.0"
 
 [tool.poetry.scripts]
 research = "octagon_web_demo.main:cli"

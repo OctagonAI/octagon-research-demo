@@ -4,7 +4,7 @@ services:
     env: python
     plan: free # Or your desired plan
     buildCommand: "curl -sSL https://install.python-poetry.org | python3 - && ~/.local/bin/poetry install --no-dev"
-    startCommand: "~/.local/bin/poetry run web"
+    startCommand: "~/.local/bin/poetry run gunicorn 'octagon_web_demo.web_app:app' --bind 0.0.0.0:$PORT"
     envVars:
       - key: OCTAGON_API_KEY
         value: xxx
