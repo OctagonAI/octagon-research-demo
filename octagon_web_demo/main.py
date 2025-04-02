@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import asyncio
 import argparse
-import os
 
 from octagon_web_demo.utils import load_template, read_companies_from_csv
 from octagon_web_demo.pipeline import ResearchPipeline

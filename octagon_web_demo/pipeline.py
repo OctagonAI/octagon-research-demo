@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import re
 from typing import Union
@@ -129,68 +131,55 @@ class ResearchPipeline:
         print(f"\n✅ Final report saved to: {report_path}")
         return report_path
 
-    async def run_streamed(self, query: str):
+    async def run_streamed(self, query: str, filename_hint: str):
+        # Emit a single starting message.
+        yield f"\nRunning research for: {filename_hint}\n"
         collected_data = {}
         temp_report = ""
-
-        yield "\n\n🚀 Running Search Agent...\n"
+        
+        # --- Execute Search Agent without streaming debug output ---
         search_data = ""
+        yield "\n\n🚀 Running Search Agent...\n"
         async for chunk in self._run_agent_streamed_yielding(self.search_agent, query):
             search_data += chunk
-            yield chunk
         if not self._is_invalid(search_data):
             collected_data["search"] = search_data
             temp_report = await self._update_report(collected_data, temp_report)
-            debug_hint = self._extract_company_name_from_query(query)
-            debug_path = self._save_debug_report(temp_report, debug_hint)
-            yield f"\n\n📝 Temp Report after Search Agent (debug saved at {debug_path}):\n{temp_report[:500]}...\n"
-
-        yield "\n\n🚀 Running Companies Agent...\n"
+        
+        # --- Execute Companies Agent ---
         company_data = ""
+        yield "\n\n🚀 Running Companies Agent...\n"
         async for chunk in self._run_agent_streamed_yielding(self.companies_agent, query):
             company_data += chunk
-            yield chunk
         if not self._is_invalid(company_data):
             if temp_report:
                 judge_result = await self._judge_data(new_data=company_data, base_report=temp_report)
-                if not judge_result["decision"]:
-                    yield "\n⚠️ Judge determined Companies Agent data is not relevant. Skipping this data source.\n"
-                else:
+                if judge_result["decision"]:
                     company_data = judge_result["selected_data"] or company_data
                     collected_data["companies"] = company_data
                     temp_report = await self._update_report(collected_data, temp_report)
-                    debug_hint = self._extract_company_name_from_query(query)
-                    debug_path = self._save_debug_report(temp_report, debug_hint)
-                    yield f"\n\n📝 Temp Report after Companies Agent (debug saved at {debug_path}):\n{temp_report[:500]}...\n"
             else:
                 collected_data["companies"] = company_data
                 temp_report = await self._update_report(collected_data, temp_report)
-        else:
-            yield "\n⚠️ Companies agent returned invalid data.\n"
-
-        yield "\n\n🚀 Running Funding Agent...\n"
+        
+        # --- Execute Funding Agent ---
         funding_data = ""
+        yield "\n\n🚀 Running Funding Agent...\n"
         async for chunk in self._run_agent_streamed_yielding(self.funding_agent, query):
             funding_data += chunk
-            yield chunk
         if not self._is_invalid(funding_data):
             if temp_report:
                 judge_result = await self._judge_data(new_data=funding_data, base_report=temp_report)
-                if not judge_result["decision"]:
-                    yield "\n⚠️ Judge determined Funding Agent data is not relevant. Skipping this data source.\n"
-                else:
+                if judge_result["decision"]:
                     funding_data = judge_result["selected_data"] or funding_data
                     collected_data["funding"] = funding_data
                     temp_report = await self._update_report(collected_data, temp_report)
-                    debug_hint = self._extract_company_name_from_query(query)
-                    debug_path = self._save_debug_report(temp_report, debug_hint)
-                    yield f"\n\n📝 Temp Report after Funding Agent (debug saved at {debug_path}):\n{temp_report[:500]}...\n"
             else:
                 collected_data["funding"] = funding_data
                 temp_report = await self._update_report(collected_data, temp_report)
-        else:
-            yield "\n⚠️ Funding agent returned invalid data.\n"
 
+
+        # --- Deep Research Agent ---
         yield "\n\n🚀 Running Deep Research Agent...\n"
         deep_research_query = (
             f"Using the following template, collect all the required information to populate it:\n\n"
@@ -210,7 +199,8 @@ class ResearchPipeline:
             yield f"\n\n📝 Temp Report after Deep Research Agent (debug saved at {debug_path}):\n{temp_report[:500]}...\n"
         else:
             yield "\n⚠️ Deep research agent returned invalid data.\n"
-
+        
+        # --- If no valid data, use fallback ---
         if not collected_data:
             company_name = self._extract_company_name_from_query(query)
             fallback_path = generate_report_path(company_name)
@@ -219,14 +209,16 @@ class ResearchPipeline:
                 "Unfortunately, no meaningful data could be retrieved for this company.\n\n"
             )
             save_report(fallback_md, fallback_path)
-            yield f"\n⚠️ No valid data found. Fallback report saved.\n"
+            yield "\n⚠️ No valid data found. Fallback report saved.\n"
             yield f"[DOWNLOAD_LINK]:/download/reports/{fallback_path.split('/')[-1]}"
             return
 
-        yield "\n\n✅ Final Report:\n"
-        yield f"\n📄 Report:\n\n{temp_report}\n"
-        report_path = generate_report_path(self._extract_company_name_from_query(query))
+        # --- Save final report and yield final messages ---
+        report_path = generate_report_path(filename_hint)
+        save_report(temp_report, report_path)
+        yield f"\n✅ Finished {filename_hint}\n"
         yield f"[DOWNLOAD_LINK]:/download/reports/{report_path.split('/')[-1]}"
+
 
     async def _judge_data(self, new_data: str, base_report: str) -> dict:
         judge_prompt = (

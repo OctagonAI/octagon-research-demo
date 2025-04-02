@@ -283,11 +283,9 @@
       box-shadow: 0 0 12px rgba(0, 255, 136, 0.15);
     }
 
-
-
     #output {
       background: rgba(30, 30, 47, 0.95);
-      color: #00ff88; /* ⚡️ retro-futuristic hacking green */
+      color: rgba(0, 255, 136); /* ⚡️ retro-futuristic hacking green */
       padding: 1.25rem 1.5rem;
       border-radius: 30px;
       min-height: 160px;
@@ -300,7 +298,6 @@
       border: 1px solid rgba(0, 255, 136, 0.25); /* subtle glow border */
       line-height: 1.5;
     }
-
 
     #output:hover {
       box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
@@ -321,6 +318,54 @@
       color: #999;
     }
 
+    .report-section {
+      background: #fff;
+      padding: 1.5rem 2rem;
+      border-radius: 16px;
+      border: 1px solid #e6e6e6;
+      margin-top: 2rem;
+      max-width: 920px;
+      margin-left: auto;
+      margin-right: auto;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .report-section.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .report-heading {
+      font-size: 1.3rem;
+      color: #423e5e;
+      margin-bottom: 1.2rem;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 0.5rem;
+    }
+
+    .report-links a {
+      display: inline-block;
+      background: transparent;
+      color: #333;
+      font-weight: 500;
+      font-size: 0.92rem;
+      padding: 0.6rem 1.1rem;
+      border-radius: 8px;
+      border: 1.5px solid #ccc;
+      margin-bottom: 0.75rem;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .report-links a:hover {
+      background: #f2f2f2;
+      border-color: #aaa;
+      color: #111;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    }
 
     #downloadLink {
       display: none;
@@ -412,21 +457,22 @@
     </div>
   </div>
 
+
   <div class="output-wrapper">
-
-
-    <pre id="output">Click Run to begin streaming report generation...</pre>
-
-<div id="downloadWrapper" style="display: none; text-align: right; margin-top: 0.75rem;">
-  <a id="downloadLink" href="#" target="_blank">⬇️ Download Report</a>
-</div>
-
-    <div class="disclaimer">
-  <span class="footer-note">Investment Research Powered by Octagon</span>
-</div>
-  </div>
-
+    <div id="reportSection" class="report-section" style="display: none;">
+      <h2 class="report-heading">📄 Reports</h2>
+      <div id="downloadContainer" class="report-links"></div>
+    </div>
   
+    <pre id="output">Click Run to begin streaming report generation...</pre>
+  
+    <div class="disclaimer">
+      <span class="footer-note">Investment Research Powered by Octagon</span>
+    </div>
+  
+  </div>
+  
+
   <script>
     const runSelectedWrapper = document.getElementById("runSelectedWrapper");
 
@@ -458,39 +504,58 @@
 
     function startStream(name, website) {
       const output = document.getElementById("output");
-      const downloadLink = document.getElementById("downloadLink");
-      const downloadWrapper = document.getElementById("downloadWrapper");
+      const downloadContainer = document.getElementById("downloadContainer");
+      const reportSection = document.getElementById("reportSection");
 
-      downloadWrapper.style.display = "none";
-      downloadLink.href = "#";
+      // Clear previous download links
+      downloadContainer.innerHTML = "";
+      reportSection.style.display = "none";
 
-      startProcessingDots(`Running research for: ${name}`); // start animation
+
+      // Set initial output and start animation
+      output.innerText = `Running research for: ${name}\n`;
+      startProcessingDots(`Running research for: ${name}`);
 
       const url = `/stream/${encodeURIComponent(name)}?website=${encodeURIComponent(website)}`;
       const eventSource = new EventSource(url);
 
       eventSource.onmessage = function(event) {
+        const downloadContainer = document.getElementById("downloadContainer");
+        const reportSection = document.getElementById("reportSection");
+
         if (event.data === "[DONE]") {
-          stopProcessingDots(); // stop animation
-          output.innerText += "\n✅ Done!\n";
+          stopProcessingDots();
+          output.innerText = `Running research for: ${name}\n\n✅ Done!\n`;
           eventSource.close();
         } else if (event.data.startsWith("[DOWNLOAD_LINK]:")) {
           const path = event.data.replace("[DOWNLOAD_LINK]:", "").trim();
-          downloadLink.href = path;
-          downloadWrapper.style.display = "block";
-        } else {
-          stopProcessingDots(); // stop as soon as real data starts
-          output.innerText += event.data;
-          output.scrollTop = output.scrollHeight;
+
+          // Create download button
+          const downloadButton = document.createElement("a");
+          downloadButton.href = path;
+          downloadButton.target = "_blank";
+          downloadButton.textContent = `⬇️ Download ${name} report`;
+          downloadButton.style.marginLeft = "1rem";
+
+          // Clear and show the report section
+          downloadContainer.innerHTML = "";
+          downloadContainer.appendChild(downloadButton);
+          reportSection.style.display = "block";
+          requestAnimationFrame(() => {
+            reportSection.classList.add("show");
+          });
         }
+        // Intermediate messages are ignored
       };
 
+
       eventSource.onerror = function() {
-        stopProcessingDots(); // stop on error
-        output.innerText += "\n❌ Error occurred. Please try again.\n";
+        stopProcessingDots();
+        output.innerText = `Running research for: ${name}\n\n❌ Error occurred. Please try again.\n`;
         eventSource.close();
       };
     }
+
 
 
     function toggleAll(master) {
@@ -514,11 +579,20 @@
       if (queue.length === 0) return;
 
       const output = document.getElementById("output");
-      output.innerText = `🔁 Running batch research for ${queue.length} companies...\n\n`;
+      const downloadContainer = document.getElementById("downloadContainer");
+
+      // Clear previous output and download buttons
+      if (queue.length === 1) {
+        output.innerText = `➡️ Running research for ${queue[0].name}...\n\n`;
+      } else {
+        output.innerText = `🔁 Running batch research for ${queue.length} companies.\n\n`;
+      }
+
+      downloadContainer.innerHTML = "";
 
       (async () => {
         for (const company of queue) {
-          output.innerText += `➡️ ${company.name}\n`;
+          output.innerText += `➡️ Running research for ${company.name} ...\n`;
           await new Promise(resolve => {
             const url = `/stream/${encodeURIComponent(company.name)}?website=${encodeURIComponent(company.website)}`;
             const eventSource = new EventSource(url);
@@ -528,10 +602,25 @@
                 output.innerText += `✅ Finished ${company.name}\n\n`;
                 eventSource.close();
                 resolve();
-              } else {
-                output.innerText += event.data;
-                output.scrollTop = output.scrollHeight;
+              } else if (event.data.startsWith("[DOWNLOAD_LINK]:")) {
+                const path = event.data.replace("[DOWNLOAD_LINK]:", "").trim();
+                // Create a new anchor element for this company
+                const downloadButton = document.createElement("a");
+                downloadButton.href = path;
+                downloadButton.target = "_blank";
+                downloadButton.textContent = `⬇️ Download ${company.name} report`;
+                // Optional: add some styling classes here if needed
+                downloadButton.style.marginLeft = "1rem";
+                // Append the new button to the container
+                downloadContainer.appendChild(downloadButton);
+                const reportSection = document.getElementById("reportSection");
+                reportSection.style.display = "block";
+                requestAnimationFrame(() => {
+                  reportSection.classList.add("show");
+                });
+
               }
+              // Ignore any intermediate messages.
             };
 
             eventSource.onerror = function() {
@@ -541,10 +630,11 @@
             };
           });
         }
-
         output.innerText += "🎉 All selected companies processed!";
       })();
     }
+
+
 
     // Scrollbar fade logic
     const tbody = document.querySelector('tbody');

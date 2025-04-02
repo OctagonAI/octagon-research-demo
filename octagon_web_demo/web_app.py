@@ -88,7 +88,6 @@ import time
 @app.route("/stream/<company_name>")
 def stream(company_name):
     website = request.args.get("website")
-    prompt = f"Get all available data for this company: {website or company_name}"
 
     def generate():
         loop = asyncio.new_event_loop()
@@ -97,14 +96,22 @@ def stream(company_name):
         async def run_stream():
             pipeline = ResearchPipeline(
                 search_agent=search_agent,
-                deep_research_agent=deep_research_agent,
                 companies_agent=companies_agent,
                 funding_agent=funding_agent,
+                deep_research_agent=deep_research_agent,
                 report_agent=report_agent,
                 judge_agent=judge_agent,
                 template=md_template
             )
-            async for chunk in pipeline.run_streamed(prompt):
+
+            if website:
+                prompt = f"Get all available data for this company: {website}"
+                filename_hint = website.replace("https://", "").replace("http://", "").split("/")[0]
+            else:
+                prompt = f"Get all available data for this company: {company_name}"
+                filename_hint = company_name
+            
+            async for chunk in pipeline.run_streamed(prompt, filename_hint):
                 yield f"data: {chunk}\n\n"
             yield "data: [DONE]\n\n"
 
